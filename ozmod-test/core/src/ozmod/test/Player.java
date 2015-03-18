@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Player extends ApplicationAdapter {
+	
+	public static final String testfile ="pms_hypr.it";
+	
 	SpriteBatch batch;
 	Texture img;
 	
@@ -14,6 +17,9 @@ public class Player extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
+		ModMusicPlayer modMusicPlayer = new ModMusicPlayer();
+		modMusicPlayer.loadUsingPlist();
+		modMusicPlayer.play(1f);
 	}
 
 	@Override
