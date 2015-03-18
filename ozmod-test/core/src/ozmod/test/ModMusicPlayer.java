@@ -5,6 +5,7 @@ import ozmod.LoaderFromMemory;
 import ozmod.MODPlayer;
 import ozmod.OZMod;
 import ozmod.PipeIn;
+import ozmod.S3MPlayer;
 import ozmod.XMPlayer;
 
 import com.badlogic.gdx.Gdx;
@@ -13,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class ModMusicPlayer {
 	OZMod ozm;
-	XMPlayer player;
+	S3MPlayer player;
 	private Runnable nextSong = new Runnable() {
 		@Override
 		public void run() {
@@ -74,9 +75,9 @@ public class ModMusicPlayer {
 		System.out.println("Playing: "+nextMod.nameWithoutExtension());
 		currentlist.removeIndex(0);
 		try {			
-			PipeIn loader = new PipeIn((java.io.File)null, 0);
+			PipeIn loader = new PipeIn();
 			loader.loadContentFromBuffer(nextMod.readBytes(), PipeIn.LITTLEENDIAN);
-			player = new XMPlayer();
+			player = new S3MPlayer();
 			player.load(loader);
 			player.play();
 //		player = ozm.getMOD(nextMod);
