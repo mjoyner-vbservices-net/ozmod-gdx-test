@@ -1,3 +1,11 @@
+apply plugin: 'eclipse'
+
+eclipse {
+	project {
+		name = 'OZMod Player'
+	}
+}
+
 buildscript {
     repositories {
         mavenCentral()
@@ -55,7 +63,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
         natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
-        compile "ozmod:ozmod:0.4"
+        compile "ozmod-gdx:ozmod-gdx:0.4"
     }
 }
 
@@ -93,7 +101,7 @@ project(":core") {
 
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-        compile "ozmod:ozmod:0.4"
+        compile "ozmod-gdx:ozmod-gdx:0.4"
     }
 }
 
