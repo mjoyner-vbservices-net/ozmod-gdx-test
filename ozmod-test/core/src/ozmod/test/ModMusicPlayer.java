@@ -1,20 +1,15 @@
 package ozmod.test;
 
-import ozmod.ITPlayer;
-import ozmod.LoaderFromMemory;
 import ozmod.MODPlayer;
-import ozmod.OZMod;
 import ozmod.PipeIn;
-import ozmod.S3MPlayer;
-import ozmod.XMPlayer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 
 public class ModMusicPlayer {
-	OZMod ozm;
-	S3MPlayer player;
+//	OZMod ozm;
+	MODPlayer player;
 	private Runnable nextSong = new Runnable() {
 		@Override
 		public void run() {
@@ -45,8 +40,8 @@ public class ModMusicPlayer {
 	}
 	
 	public ModMusicPlayer() {
-		ozm = new OZMod();
-		ozm.initOutput();
+//		ozm = new OZMod();
+//		ozm.initOutput();
 	}
 	
 	public void loadUsingPlist(){
@@ -76,8 +71,8 @@ public class ModMusicPlayer {
 		currentlist.removeIndex(0);
 		try {			
 			PipeIn loader = new PipeIn();
-			loader.loadContentFromBuffer(nextMod.readBytes(), PipeIn.LITTLEENDIAN);
-			player = new S3MPlayer();
+			loader.loadContentFromBuffer(nextMod.readBytes(), PipeIn.BIGENDIAN);
+			player = new MODPlayer();
 			player.load(loader);
 			player.play();
 //		player = ozm.getMOD(nextMod);
