@@ -1,15 +1,11 @@
 package ozmod.test;
 
-import ozmod.ITPlayer;
-import ozmod.MODPlayer;
 import ozmod.OZModPlayer;
 import ozmod.OZModPlayer.IAudioDevice;
-import ozmod.OZModRuntimeError;
-import ozmod.S3MPlayer;
-import ozmod.XMPlayer;
+import ozmod.OZPlayer;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Application.ApplicationType;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.AudioDevice;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -29,9 +25,10 @@ public class ModMusicPlayer {
 			play(volume);
 		}
 	};
-	private float volume=1f;
+	private float volume=.1f;
 	final private Array<FileHandle> playlist = new Array<FileHandle>();
 	final private Array<FileHandle> currentlist = new Array<FileHandle>();
+	private AudioDevice pcmAudio;
 
 	public void pause(){
 		if (player!=null && !Gdx.app.getType().equals(ApplicationType.Desktop)) {
@@ -45,7 +42,8 @@ public class ModMusicPlayer {
 		}
 	}
 	
-	public ModMusicPlayer() {
+	public ModMusicPlayer(AudioDevice audioDevice) {
+		this.pcmAudio = audioDevice;
 	}
 	
 	public void loadUsingPlist(){
@@ -61,46 +59,12 @@ public class ModMusicPlayer {
 	public Array<FileHandle> getPlaylist() {
 		return playlist;
 	}
-	
-	public OZModPlayer getPlayerFor(IAudioDevice iaud, byte[] bytes) {
-		OZModPlayer player;
-		try {
-			player = new ITPlayer(iaud);
-			player.load(bytes);
-			return player;
-		} catch (OZModRuntimeError e) {
-			e.printStackTrace();
-		}
-		try {
-			player = new S3MPlayer(iaud);
-			player.load(bytes);
-			return player;
-		} catch (OZModRuntimeError e) {
-			e.printStackTrace();
-		}
-		try {
-			player = new XMPlayer(iaud);
-			player.load(bytes);
-			return player;
-		} catch (OZModRuntimeError e) {
-			e.printStackTrace();
-		}
-		try {
-			player = new MODPlayer(iaud);
-			player.load(bytes);
-			return player;
-		} catch (OZModRuntimeError e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
 
 	public void play(float _volume) {
-		final AudioDevice aud = Gdx.audio.newAudioDevice(44100, false);
 		IAudioDevice iaud=new IAudioDevice() {
 			@Override
 			public void writeSamples(short[] samples, int offset, int numSamples) {
-				aud.writeSamples(samples, offset, numSamples);					
+				pcmAudio.writeSamples(samples, offset, numSamples);					
 			}
 		};
 		if (currentlist.size==0) {
@@ -114,7 +78,8 @@ public class ModMusicPlayer {
 		System.out.println("Playing: "+nextMod.nameWithoutExtension());
 		currentlist.removeIndex(0);
 		try {
-			player = getPlayerFor(iaud, nextMod.readBytes());
+			player = OZPlayer.getPlayerFor(iaud, nextMod.readBytes());
+//			player = getPlayerFor(iaud, nextMod.readBytes());
 			Gdx.app.log("ModMusicPlayer", "ModPlayer: "+player.getClass().getSimpleName());
 			player.play();
 		} catch (Exception e) {
@@ -128,9 +93,10 @@ public class ModMusicPlayer {
 		player.setVolume(volume);
 		player.addWhenDone(nextSong);
 		player.setLoopable(false);
+		player.setMaxPlayTime(1000l*60l*3l);
 		player.play();
 		if (nextMod.nameWithoutExtension().startsWith("musix-after")){
-			player.setMaxPlayTime(120);
+//			player.setMaxPlayTime(120000);
 		}
 		setVolume(volume);
 	}
@@ -148,7 +114,7 @@ public class ModMusicPlayer {
 
 	public void setVolume(float volume) {
 		if (player != null) {
-//			player.setMasterVolume(volume);
+			player.setVolume(volume);
 		}
 		this.volume=volume;
 	}

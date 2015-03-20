@@ -2,6 +2,7 @@ package ozmod.test;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.AudioDevice;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,14 +14,23 @@ public class Player extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
 	ModMusicPlayer modMusicPlayer;
+
+	private AudioDevice pcmAudio;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
-		modMusicPlayer = new ModMusicPlayer();
+		this.pcmAudio = Gdx.audio.newAudioDevice(44100, false);
+		modMusicPlayer = new ModMusicPlayer(pcmAudio);
 		modMusicPlayer.loadUsingPlist();
 		modMusicPlayer.play(1f);
+	}
+	
+	@Override
+	public void dispose() {
+		pcmAudio.dispose();
+		super.dispose();
 	}
 	
 	@Override
