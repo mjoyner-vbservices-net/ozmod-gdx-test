@@ -1,15 +1,20 @@
 package ozmod.test;
 
+import ozmod.ITPlayer;
 import ozmod.MODPlayer;
-import ozmod.PipeIn;
+import ozmod.OZModPlayer;
+import ozmod.OZModPlayer.IAudioDevice;
+import ozmod.OZModRuntimeError;
+import ozmod.S3MPlayer;
+import ozmod.XMPlayer;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.AudioDevice;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
 
 public class ModMusicPlayer {
-//	OZMod ozm;
-	MODPlayer player;
+	OZModPlayer player;
 	private Runnable nextSong = new Runnable() {
 		@Override
 		public void run() {
@@ -29,13 +34,13 @@ public class ModMusicPlayer {
 
 	public void pause(){
 		if (player!=null) {
-//			player.pause(true);
+			player.pause(true);
 		}
 	}
 	
 	public void resume(){
 		if (player!=null) {
-//			player.pause(false);
+			player.pause(false);
 		}
 	}
 	
@@ -57,8 +62,48 @@ public class ModMusicPlayer {
 	public Array<FileHandle> getPlaylist() {
 		return playlist;
 	}
+	
+	public OZModPlayer getPlayerFor(IAudioDevice iaud, byte[] bytes) {
+		OZModPlayer player;
+		try {
+			player = new ITPlayer(iaud);
+			player.load(bytes);
+			return player;
+		} catch (OZModRuntimeError e) {
+			e.printStackTrace();
+		}
+		try {
+			player = new S3MPlayer(iaud);
+			player.load(bytes);
+			return player;
+		} catch (OZModRuntimeError e) {
+			e.printStackTrace();
+		}
+		try {
+			player = new XMPlayer(iaud);
+			player.load(bytes);
+			return player;
+		} catch (OZModRuntimeError e) {
+			e.printStackTrace();
+		}
+		try {
+			player = new MODPlayer(iaud);
+			player.load(bytes);
+			return player;
+		} catch (OZModRuntimeError e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 
 	public void play(float _volume) {
+		final AudioDevice aud = Gdx.audio.newAudioDevice(44100, false);
+		IAudioDevice iaud=new IAudioDevice() {
+			@Override
+			public void writeSamples(short[] samples, int offset, int numSamples) {
+				aud.writeSamples(samples, offset, numSamples);					
+			}
+		};
 		if (currentlist.size==0) {
 			reloadActiveList();
 		}
@@ -69,13 +114,10 @@ public class ModMusicPlayer {
 		FileHandle nextMod = currentlist.get(0); 
 		System.out.println("Playing: "+nextMod.nameWithoutExtension());
 		currentlist.removeIndex(0);
-		try {			
-			PipeIn loader = new PipeIn();
-			loader.loadContentFromBuffer(nextMod.readBytes(), PipeIn.BIGENDIAN);
-			player = new MODPlayer();
-			player.load(loader);
+		try {
+			player = getPlayerFor(iaud, nextMod.readBytes());
+			Gdx.app.log("ModMusicPlayer", "ModPlayer: "+player.getClass().getSimpleName());
 			player.play();
-//		player = ozm.getMOD(nextMod);
 		} catch (Exception e) {
 			e.printStackTrace();
 			/* BAD MOD, REMOVE FROM LIST, TRY AGAIN */
@@ -84,8 +126,7 @@ public class ModMusicPlayer {
 			new Thread(nextSong).start();
 			return;
 		}
-//		player.setMasterVolume(volume);
-//		player.setDaemon(true);
+//		player.setMasterVolume(volume);		
 //		player.setCallback(nextSong);
 		player.setLoopable(false);
 		player.play();

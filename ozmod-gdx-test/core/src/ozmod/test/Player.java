@@ -12,14 +12,27 @@ public class Player extends ApplicationAdapter {
 	
 	SpriteBatch batch;
 	Texture img;
+	ModMusicPlayer modMusicPlayer;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
-		ModMusicPlayer modMusicPlayer = new ModMusicPlayer();
+		modMusicPlayer = new ModMusicPlayer();
 		modMusicPlayer.loadUsingPlist();
 		modMusicPlayer.play(1f);
+	}
+	
+	@Override
+	public void pause() {
+		super.pause();
+		modMusicPlayer.pause();
+	}
+	
+	@Override
+	public void resume() {
+		super.resume();
+		modMusicPlayer.resume();
 	}
 
 	@Override
