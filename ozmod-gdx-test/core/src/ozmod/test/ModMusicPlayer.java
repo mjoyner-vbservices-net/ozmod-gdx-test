@@ -9,6 +9,7 @@ import ozmod.S3MPlayer;
 import ozmod.XMPlayer;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.audio.AudioDevice;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Array;
@@ -28,25 +29,23 @@ public class ModMusicPlayer {
 			play(volume);
 		}
 	};
-	private float volume;
+	private float volume=1f;
 	final private Array<FileHandle> playlist = new Array<FileHandle>();
 	final private Array<FileHandle> currentlist = new Array<FileHandle>();
 
 	public void pause(){
-		if (player!=null) {
+		if (player!=null && !Gdx.app.getType().equals(ApplicationType.Desktop)) {
 			player.pause(true);
 		}
 	}
 	
 	public void resume(){
-		if (player!=null) {
+		if (player!=null && !Gdx.app.getType().equals(ApplicationType.Desktop)) {
 			player.pause(false);
 		}
 	}
 	
 	public ModMusicPlayer() {
-//		ozm = new OZMod();
-//		ozm.initOutput();
 	}
 	
 	public void loadUsingPlist(){
@@ -126,12 +125,12 @@ public class ModMusicPlayer {
 			new Thread(nextSong).start();
 			return;
 		}
-//		player.setMasterVolume(volume);		
-//		player.setCallback(nextSong);
+		player.setVolume(volume);
+		player.addWhenDone(nextSong);
 		player.setLoopable(false);
 		player.play();
 		if (nextMod.nameWithoutExtension().startsWith("musix-after")){
-//			player.setMaxPlayTime(120);
+			player.setMaxPlayTime(120);
 		}
 		setVolume(volume);
 	}
@@ -139,12 +138,12 @@ public class ModMusicPlayer {
 		currentlist.addAll(playlist);
 		currentlist.shuffle();
 		//always move "wild-perspective" to front of the list
-		for (int ix=1; ix<currentlist.size; ix++) {
-			if (currentlist.get(ix).name().contains("wild-perspective")) {
-				currentlist.swap(0, ix);
-				break;
-			}
-		}
+//		for (int ix=1; ix<currentlist.size; ix++) {
+//			if (currentlist.get(ix).name().contains("wild-perspective")) {
+//				currentlist.swap(0, ix);
+//				break;
+//			}
+//		}
 	}
 
 	public void setVolume(float volume) {
