@@ -7,7 +7,7 @@ import ozmod.test.Player;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.audioDeviceBufferSize=16384;
+		config.audioDeviceBufferSize=2048;
 		new LwjglApplication(new Player(), config);
 	}
 }
