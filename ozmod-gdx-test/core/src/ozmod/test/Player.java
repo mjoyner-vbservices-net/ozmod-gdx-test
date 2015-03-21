@@ -15,21 +15,17 @@ public class Player extends ApplicationAdapter {
 	Texture img;
 	ModMusicPlayer modMusicPlayer;
 
-	private AudioDevice pcmAudio;
-	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
-		this.pcmAudio = Gdx.audio.newAudioDevice(44100, false);
-		modMusicPlayer = new ModMusicPlayer(pcmAudio);
+		modMusicPlayer = new ModMusicPlayer();
 		modMusicPlayer.loadUsingPlist();
 		modMusicPlayer.play(1f);
 	}
 	
 	@Override
 	public void dispose() {
-		pcmAudio.dispose();
 		super.dispose();
 	}
 	

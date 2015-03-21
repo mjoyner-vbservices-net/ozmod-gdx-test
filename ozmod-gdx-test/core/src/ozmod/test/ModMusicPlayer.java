@@ -1,5 +1,7 @@
 package ozmod.test;
 
+import java.util.Arrays;
+
 import ozmod.OZModPlayer;
 import ozmod.OZModPlayer.IAudioDevice;
 import ozmod.OZPlayer;
@@ -28,7 +30,6 @@ public class ModMusicPlayer {
 	private float volume=.1f;
 	final private Array<FileHandle> playlist = new Array<FileHandle>();
 	final private Array<FileHandle> currentlist = new Array<FileHandle>();
-	private AudioDevice pcmAudio;
 
 	public void pause(){
 		if (player!=null && !Gdx.app.getType().equals(ApplicationType.Desktop)) {
@@ -40,10 +41,6 @@ public class ModMusicPlayer {
 		if (player!=null && !Gdx.app.getType().equals(ApplicationType.Desktop)) {
 			player.pause(false);
 		}
-	}
-	
-	public ModMusicPlayer(AudioDevice audioDevice) {
-		this.pcmAudio = audioDevice;
 	}
 	
 	public void loadUsingPlist(){
@@ -61,10 +58,22 @@ public class ModMusicPlayer {
 	}
 
 	public void play(float _volume) {
+		final AudioDevice pcmAudio = Gdx.audio.newAudioDevice(44100, false);
 		IAudioDevice iaud=new IAudioDevice() {
 			@Override
 			public void writeSamples(short[] samples, int offset, int numSamples) {
 				pcmAudio.writeSamples(samples, offset, numSamples);					
+			}
+			@Override
+			public void setVolume(float f) {
+				pcmAudio.setVolume(f);
+			}
+			@Override
+			public void dispose(){
+				short[] silence=new short[4096];
+				Arrays.fill(silence, (short)0);
+				pcmAudio.writeSamples(silence, 0, 4096);
+				pcmAudio.dispose();
 			}
 		};
 		if (currentlist.size==0) {
@@ -72,15 +81,14 @@ public class ModMusicPlayer {
 		}
 		if (playlist.size==0) {
 			return;
-		}		
+		}
 		volume = _volume;		
 		FileHandle nextMod = currentlist.get(0); 
 		System.out.println("Playing: "+nextMod.nameWithoutExtension());
 		currentlist.removeIndex(0);
 		try {
 			player = OZPlayer.getPlayerFor(iaud, nextMod.readBytes());
-//			player = getPlayerFor(iaud, nextMod.readBytes());
-			Gdx.app.log("ModMusicPlayer", "ModPlayer: "+player.getClass().getSimpleName());
+			Gdx.app.log("ModMusicPlayer", "ModPlayer: "+player.getClass().getSimpleName()+" - "+player.getSongName());
 			player.play();
 		} catch (Exception e) {
 			e.printStackTrace();
